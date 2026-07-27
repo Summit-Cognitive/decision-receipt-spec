@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Summit-Cognitive/decision-receipt-spec/schemas/claim-input.schema.json",
+  "title": "ClaimInput",
+  "description": "Request body accepted by POST /v1/evaluate and POST /v1/simulate on the Summit Cognitive Decision Receipt API. Mirrors the published reference at https://docs.summitcognitive.ai/api/reference; the served /v1/openapi.json is authoritative.",
+  "type": "object",
+  "required": ["claim_id", "entity", "claim", "sources"],
+  "additionalProperties": true,
+  "properties": {
+    "claim_id": {
+      "type": "string",
+      "description": "Unique identifier for this claim. Use a stable, caller-generated id so the same decision can be found again later.",
+      "minLength": 1
+    },
+    "entity": {
+      "type": "string",
+      "description": "The entity the claim is about — the thing being evaluated.",
+      "minLength": 1
+    },
+    "claim": {
+      "type": "string",
+      "description": "Human-readable description of what is being asserted or proposed.",
+      "minLength": 1
+    },
+    "sources": {
+      "type": "array",
+      "description": "Evidence supporting the claim. At least one source is required — a decision with no evidence is not evaluable.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "description": "A typed, provenanced evidence source: CI results, code review, test output, human approval, model traces."
+      }
+    },
+    "expected_replay_match": {
+      "type": "boolean",
+      "description": "Whether the caller expects this decision to reproduce deterministically on replay. Declaring the expectation lets the service flag divergence rather than silently accepting it."
+    },
+    "action": {
+      "type": "object",
+      "description": "Metadata about the action the decision authorizes — for example the repository, agent, or deployment target."
+    },
+    "decision_rights": {
+      "type": "array",
+      "description": "Assertions about which principal or role holds the right to make this decision.",
+      "items": { "type": "object" }
+    },
+    "policyConfig": {
+      "type": "object",
+      "description": "Per-request policy overrides. Use POST /v1/simulate to dry-run a policy configuration without persisting a receipt."
+    }
+  }
+}
