@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Summit-Cognitive/decision-receipt-spec/schemas/evaluate-response.schema.json",
+  "title": "EvaluateResponse",
+  "description": "Envelope returned by POST /v1/evaluate. Mirrors the published reference at https://docs.summitcognitive.ai/api/reference; the served /v1/openapi.json is authoritative.",
+  "type": "object",
+  "required": ["policy", "replay", "receipt"],
+  "additionalProperties": true,
+  "properties": {
+    "policy": {
+      "type": "object",
+      "description": "The policy evaluation result.",
+      "required": ["verdict"],
+      "properties": {
+        "verdict": {
+          "type": "string",
+          "enum": ["ALLOWED", "BLOCKED", "ESCALATED"],
+          "description": "What policy decided. ESCALATED means no automated outcome was reached and a human owns the next step."
+        },
+        "reason": {
+          "type": "string",
+          "description": "Human-readable explanation of the verdict."
+        },
+        "rules": {
+          "type": "array",
+          "description": "The individual rules evaluated and their outcomes.",
+          "items": { "type": "object" }
+        }
+      }
+    },
+    "replay": {
+      "type": "object",
+      "description": "Whether the decision reproduces deterministically.",
+      "properties": {
+        "passed": {
+          "type": "boolean",
+          "description": "True when replaying the same inputs produced the same outcome."
+        },
+        "replay_hash": {
+          "type": "string",
+          "description": "Hash demonstrating the replayed computation."
+        }
+      }
+    },
+    "receipt": {
+      "type": "object",
+      "description": "The sealed Decision Receipt.",
+      "properties": {
+        "receipt_id": {
+          "type": "string",
+          "description": "Identifier for this receipt. Use it with the ledger and verification endpoints."
+        },
+        "admissibility": {
+          "type": "object",
+          "description": "Admissibility status, reported separately from the policy verdict. A decision can be authorized by policy and still not be admissible.",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": ["ACCEPTED", "NON_DETERMINISTIC", "REJECTED"]
+            }
+          }
+        },
+        "attestations": {
+          "type": "array",
+          "description": "Ed25519 signatures and hash-chain links binding this receipt to its predecessor.",
+          "items": { "type": "object" }
+        }
+      }
+    }
+  }
+}
