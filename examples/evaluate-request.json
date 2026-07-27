@@ -1,0 +1,46 @@
+{
+  "claim_id": "pr-4821-merge-2026-07-27",
+  "entity": "repo:acme/payments-service",
+  "claim": "Pull request #4821 is safe to merge to main.",
+  "expected_replay_match": true,
+  "action": {
+    "type": "merge",
+    "repo": "acme/payments-service",
+    "pull_request": 4821,
+    "agent": "release-bot@acme"
+  },
+  "decision_rights": [
+    {
+      "principal": "release-bot@acme",
+      "role": "automated-merger",
+      "granted_by": "acme-engineering-policy-v3"
+    }
+  ],
+  "sources": [
+    {
+      "type": "ci",
+      "name": "github-actions",
+      "run_id": "17742930114",
+      "conclusion": "success",
+      "uri": "https://github.com/acme/payments-service/actions/runs/17742930114"
+    },
+    {
+      "type": "code-review",
+      "reviewer": "j.okafor@acme",
+      "state": "approved",
+      "submitted_at": "2026-07-27T15:04:11Z"
+    },
+    {
+      "type": "test",
+      "suite": "integration",
+      "passed": 1284,
+      "failed": 0,
+      "coverage": 0.87
+    },
+    {
+      "type": "sbom",
+      "format": "cyclonedx-1.5",
+      "critical_vulnerabilities": 0
+    }
+  ]
+}
