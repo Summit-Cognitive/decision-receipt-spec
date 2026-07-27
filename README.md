@@ -14,7 +14,7 @@ A **Decision Receipt** is a cryptographically signed (Ed25519), replayable, inde
 | --- | --- |
 | [`schemas/claim-input.schema.json`](schemas/claim-input.schema.json) | The request body accepted by `POST /v1/evaluate` and `POST /v1/simulate`. |
 | [`schemas/evaluate-response.schema.json`](schemas/evaluate-response.schema.json) | The envelope returned by `POST /v1/evaluate`: policy verdict, replay determination, and receipt. |
-| [`examples/`](examples) | Worked request and response documents. |
+| [`examples/evaluate-request.json`](examples/evaluate-request.json) | A worked request — an agent asking whether a pull request is safe to merge. |
 
 ## The shape of a decision
 
@@ -27,19 +27,26 @@ A receipt binds four things into one tamper-evident artifact, chained to the rec
 
 Admissibility status is reported separately from the policy verdict: `ACCEPTED`, `NON_DETERMINISTIC`, or `REJECTED`. A decision can be *authorized* by policy and still fail to be *admissible* — for example, when it does not replay deterministically.
 
-## Verifying a receipt offline
+## End to end
 
 ```bash
-# Fetch the Ed25519 public key (PEM, no auth required)
-curl -s https://decrec.summitcognitive.ai/v1/keys/server
+API_KEY=$(curl -s https://decrec.summitcognitive.ai/v1/signup \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"you@example.com"}' | jq -r .api_key)
 
-# Or check a receipt against the live verifier
+# Evaluate the worked example and keep the receipt
+curl -s https://decrec.summitcognitive.ai/v1/evaluate \
+  -H "X-API-Key: $API_KEY" \
+  -H 'Content-Type: application/json' \
+  -d @examples/evaluate-request.json | jq '.receipt' > receipt.json
+
+# Verify it — no API key required
 curl -s https://decrec.summitcognitive.ai/v1/verify \
   -H 'Content-Type: application/json' \
-  -d @examples/evaluate-response.json
+  -d @receipt.json
 ```
 
-`POST /v1/verify` requires no API key. That is deliberate: a record you can only check by asking the issuer's permission is not independently verifiable.
+`POST /v1/verify` requires no API key, and `GET /v1/keys/server` publishes the Ed25519 public key for offline verification. That is deliberate: a record you can only check by asking the issuer's permission is not independently verifiable.
 
 ## What a passing verification does and does not mean
 
